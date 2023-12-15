@@ -1,6 +1,105 @@
 ﻿@page "/"
+@namespace Home
+@using Microsoft.EntityFrameworkCore
+@using Budget.Data
+@inject IDbContextFactory<BudgetDataContext> BudgetDataContextFactory;
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Budget Helper</PageTitle>
 
-<h1>Let's talk money</h1>
+@if (ShowCreate)
+{
+    <h3>Add an Expense</h3>
+    <div class="row">
+        <label for="Name" class="col-4 col-form-label">Name</label>
+        <div class="col-8">
+            <input id="Name" name="Name" type="text" class="form-control" @bind="@NewExpense.Name" />
+        </div>
+    </div>
+    <div class="row">
+        <label for="Description" class="col-4 col-form-label">Description</label>
+        <div class="col-8">
+            <input id="Description" name="Description" type="text" class="form-control" @bind="@NewExpense.Description">
+        </div>
+    </div>
+    <div class="row">
+        <label for="Amount" class="col-4 col-form-label">Amount</label>
+        <div class="col-8">
+            <input id="Amount" name="Amount" type="text" class="form-control" @bind="@NewExpense.Amount">
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="offset-4 col-8">
+            <button name="submit" type="submit" class="btn btn-primary" @onclick="CreateNewExpense">Submit</button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="form-group row">
+        <div class="offset-4 col-8">
+            <button name="submit" type="submit" class="btn btn-primary" @onclick="ShowCreateForm">Add Expense</button>
+        </div>
+    </div>
+
+    @if (@Expenses is not null && @Expenses.Count > 0)
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover table-bordered table-light border-dark">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Amount</th>
+                        <th scope="col">Edit</th>
+                        <th scope="col">Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var expense in Expenses)
+                    {
+                        @if (!@ShowEdit)
+                        {
+                            <tr>
+                                <th scope="row">@expense.Id</th>
+                                <td>@expense.Name</td>
+                                <td>@expense.Description</td>
+                                <td>@expense.Amount</td>
+                                <td><button name="submit" type="submit" class="btn btn-primary" @onclick="() => ShowEditForm(expense)">Edit</button></td>
+                                <td><button name="submit" type="submit" class="btn btn-primary" @onclick="() => DeleteExpense(expense)">Delete</button></td>
+                            </tr>
+                        }
+                        else
+                        {
+                            if (@ExpenseToUpdate is not null && @ExpenseToUpdate.Id == @expense.Id)
+                            {
+                                <tr>
+                                    <th scope="row">@expense.Id</th>
+                                    <td><input id="Name" name="Name" type="text" class="form-control" @bind="@ExpenseToUpdate.Name" /></td>
+                                    <td><input id="Description" name="Description" type="text" class="form-control" @bind="@ExpenseToUpdate.Description" /></td>
+                                    <td><input id="Amount" name="Amount" type="text" class="form-control" @bind="@ExpenseToUpdate.Amount" /></td>
+                                    <td><button name="submit" type="submit" class="btn btn-primary" @onclick="@UpdateExpense">Save</button></td>
+                                    <td></td>
+                                </tr>
+                            }
+                            else
+                            {
+                                <tr>
+                                    <th scope="row">@expense.Id</th>
+                                    <td>@expense.Name</td>
+                                    <td>@expense.Description</td>
+                                    <td>@expense.Amount</td>
+                                    <td><button name="submit" type="submit" class="btn btn-primary" @onclick="() => ShowEditForm(expense)">Edit</button></td>
+                                    <td></td>
+                                </tr>
+                            }
+
+                        }
+
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+}
 
